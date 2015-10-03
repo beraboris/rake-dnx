@@ -12,9 +12,9 @@ Why?
 ----
 
 [DNX](http://docs.asp.net/en/latest/dnx/index.html) is Microsoft's solution to
-the poor state of .NET build tooling. By all means it's great. It know about the
-.NET languages and it know about NuGet. You just tell it what you want and it
-builds it all for you.
+the poor state of .NET build tooling. By all means it's great. It knows about
+the .NET languages and it knows about NuGet. You just tell it what you want and
+it builds it all for you.
 
 It only has two issues:
 
