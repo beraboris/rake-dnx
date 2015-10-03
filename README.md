@@ -1,6 +1,8 @@
 Rake DNX
 ========
 
+[![Build Status](https://travis-ci.org/beraboris/rake-dnx.svg?branch=master)](https://travis-ci.org/beraboris/rake-dnx)
+
 Rake DNX is a set of helpers that allow you to discover and run all the DNX
 (.NET Execution Envrionment) commands and tasks all from one place. Rake DNX
 leverages the power of [Ruby](https://www.ruby-lang.org/en/) and
