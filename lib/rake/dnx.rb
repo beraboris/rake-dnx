@@ -6,42 +6,55 @@ module Rake
   # Execution Envrionment) commands from one place easily.
   module Dnx
     # Represents a failure when running the `dnx` command
-    class DnxError < RuntimeError
-      attr_reader :exit_code, :command, :params
+    class CommandError < RuntimeError
+      attr_reader :exit_code, :command, :sub_command, :params
 
-      def initialize(exit_code, command, params = {})
+      def initialize(command, exit_code, sub_command, params = {})
         @exit_code = exit_code
         @command = command
+        @sub_command = sub_command
         @params = params
 
-        super "Failed to run 'dnx #{command}' with param=#{params} ' \
-          '(exit_code=#{exit_code})"
+        super "Failed to run '#{command} #{sub_command}' with '\
+          'params=#{params} (exit_code=#{exit_code})"
       end
     end
 
     # Represents that the dnx command doesn't exist
-    class DnxNotFoundError < RuntimeError
-      def initialize
-        super 'Failed to find the dnx command. Make sure it is installed'
+    class CommandNotFoundError < RuntimeError
+      attr_reader :command
+
+      def initialize(command)
+        super "Failed to find the #{command} command. Make sure it's installed."
       end
     end
 
     # Calls the `dnx` command
-    #
-    # Ignoring :reek:NilCheck since it's a part of `system` and has a special
-    #   meaning
-    def dnx(command, project: nil)
-      options = []
-      options += ['--project', project] if project
-      res = system 'dnx', *options, command
+    def dnx(command, **options)
+      run_command 'dnx', command, **options
+    end
+    module_function :dnx
+
+    # Calls the `dnu` command
+    def dnu(command, **options)
+      run_command 'dnu', command, **options
+    end
+    module_function :dnu
+
+    private
+
+    # :reek:NilCheck
+    def run_command(command, sub_command, **options)
+      shell_options = options.flat_map { |name, value| ["--#{name}", value] }
+      res = system command, *shell_options, sub_command
 
       case res
       when false
-        fail DnxError.new($CHILD_STATUS, command)
+        fail CommandError.new(command, $CHILD_STATUS, sub_command)
       when nil
-        fail DnxNotFoundError
+        fail CommandNotFoundError, command
       end
     end
-    module_function :dnx
+    module_function :run_command
   end
 end
