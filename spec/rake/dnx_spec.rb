@@ -1,5 +1,12 @@
 require 'spec_helper'
 
+# Cleaner matcher to check if a task exists
+# Ignoring style rules becaue this makes sence in the context of rspec
+# rubocop:disable Style/PredicateName
+def have_task(task)
+  be_task_defined task
+end
+
 shared_examples 'a command wrapper' do
   it 'should call the command with the given subcommand' do
     expect(Rake::Dnx).to receive(:system)
@@ -32,10 +39,29 @@ shared_examples 'a command wrapper' do
 end
 
 shared_examples 'a dnu command task generator' do
-  it 'should generate the dnu restore task'
-  it 'should generate the dnu build task'
-  it 'should generate the dnu pack task'
-  it 'should generate the dnu publish task'
+  it 'should generate the dnu restore task' do
+    Rake::Dnx.dnx_discover
+
+    expect(Rake::Task).to have_task(:restore)
+  end
+
+  it 'should generate the dnu build task' do
+    Rake::Dnx.dnx_discover
+
+    expect(Rake::Task).to have_task(:build)
+  end
+
+  it 'should generate the dnu pack task' do
+    Rake::Dnx.dnx_discover
+
+    expect(Rake::Task).to have_task(:pack)
+  end
+
+  it 'should generate the dnu publish task' do
+    Rake::Dnx.dnx_discover
+
+    expect(Rake::Task).to have_task(:publish)
+  end
 end
 
 describe Rake::Dnx do
@@ -55,6 +81,10 @@ describe Rake::Dnx do
 
   describe '::dnx_discover' do
     context 'with a global.json file' do
+      before do
+        Dir.chdir Pathname.new(__FILE__) + '../../fixtures/multi-project'
+      end
+
       it_should_behave_like 'a dnu command task generator'
 
       it 'should generate the dnu build task for every project'
@@ -67,6 +97,10 @@ describe Rake::Dnx do
     end
 
     context 'with a project.json file' do
+      before do
+        Dir.chdir Pathname.new(__FILE__) + '../../fixtures/single-project'
+      end
+
       it_should_behave_like 'a dnu command task generator'
 
       it 'should generate a dnx run task'
@@ -74,7 +108,14 @@ describe Rake::Dnx do
     end
 
     context 'with no global.json or project.json file in the root' do
-      it 'should fail'
+      before do
+        Dir.chdir Pathname.new(__FILE__) + '../../fixtures/bad-project'
+      end
+
+      it 'should fail' do
+        expect { Rake::Dnx.dnx_discover }
+          .to raise_error(Rake::Dnx::DiscoveryError)
+      end
     end
   end
 end

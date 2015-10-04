@@ -1,3 +1,5 @@
+require 'rake'
+require 'pathname'
 require 'rake/dnx/version'
 require 'English'
 
@@ -29,6 +31,9 @@ module Rake
       end
     end
 
+    # Represents a failure to discover dnx projects
+    class DiscoveryError < RuntimeError; end
+
     # Calls the `dnx` command
     def dnx(command, **options)
       run_command 'dnx', command, **options
@@ -40,6 +45,21 @@ module Rake
       run_command 'dnu', command, **options
     end
     module_function :dnu
+
+    # Finds `global.json` and `project.json` and generates all the tasks
+    # applicable to those
+    def dnx_discover
+      if Pathname.new('./global.json').exist?
+        # TODO
+      elsif Pathname.new('./project.json').exist?
+        # TODO
+      else
+        fail DiscoveryError,
+             'Could not find global.json or project.json in the current ' \
+             'directory. Is this a DNX project?'
+      end
+    end
+    module_function :dnx_discover
 
     private
 
