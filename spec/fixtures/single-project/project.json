@@ -1,3 +1,7 @@
 {
-  
+  "commands": {
+    "fi": "something",
+    "fo": "something else",
+    "fum": "another thing"
+  }
 }

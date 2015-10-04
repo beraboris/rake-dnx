@@ -1,4 +1,5 @@
 require 'rake'
+require 'json'
 require 'pathname'
 require 'rake/dnx/version'
 require 'English'
@@ -49,10 +50,10 @@ module Rake
     # Finds `global.json` and `project.json` and generates all the tasks
     # applicable to those
     def dnx_discover
-      if Pathname.new('./global.json').exist?
-        # TODO
-      elsif Pathname.new('./project.json').exist?
-        # TODO
+      if Pathname.new('global.json').exist?
+        discover_gobal
+      elsif Pathname.new('project.json').exist?
+        discover_project
       else
         fail DiscoveryError,
              'Could not find global.json or project.json in the current ' \
@@ -62,6 +63,40 @@ module Rake
     module_function :dnx_discover
 
     private
+
+    def discover_gobal
+      generate_dnu_task 'restore'
+    end
+    module_function :discover_gobal
+
+    def discover_project
+      %w(restore build pack publish).each do |command|
+        generate_dnu_task command
+      end
+
+      generate_dnx_task :run
+
+      project = JSON.parse((Pathname.new('project.json').read))
+      commands = project['commands'].keys
+      commands.each do |command|
+        generate_dnx_task command
+      end
+    end
+    module_function :discover_project
+
+    def generate_dnu_task(command)
+      Rake::Task.define_task command do
+        dnu command
+      end
+    end
+    module_function :generate_dnu_task
+
+    def generate_dnx_task(command)
+      Rake::Task.define_task command do
+        dnx command
+      end
+    end
+    module_function :generate_dnx_task
 
     # :reek:NilCheck
     def run_command(command, sub_command, **options)

@@ -80,6 +80,10 @@ describe Rake::Dnx do
   end
 
   describe '::dnx_discover' do
+    before do
+      Rake.application.clear
+    end
+
     context 'with a global.json file' do
       before do
         Dir.chdir Pathname.new(__FILE__) + '../../fixtures/multi-project'
@@ -103,8 +107,19 @@ describe Rake::Dnx do
 
       it_should_behave_like 'a dnu command task generator'
 
-      it 'should generate a dnx run task'
-      it 'should generate a task for each command'
+      it 'should generate a dnx run task' do
+        Rake::Dnx.dnx_discover
+
+        expect(Rake::Task).to have_task :run
+      end
+
+      it 'should generate a task for each command' do
+        Rake::Dnx.dnx_discover
+
+        expect(Rake::Task).to have_task :fi
+        expect(Rake::Task).to have_task :fo
+        expect(Rake::Task).to have_task :fum
+      end
     end
 
     context 'with no global.json or project.json file in the root' do
