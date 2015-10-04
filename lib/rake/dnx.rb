@@ -75,12 +75,7 @@ module Rake
       end
 
       generate_dnx_task :run
-
-      project = JSON.parse((Pathname.new('project.json').read))
-      commands = project['commands'].keys
-      commands.each do |command|
-        generate_dnx_task command
-      end
+      generate_dnx_tasks_for_project
     end
     module_function :discover_project
 
@@ -97,6 +92,15 @@ module Rake
       end
     end
     module_function :generate_dnx_task
+
+    def generate_dnx_tasks_for_project
+      project = JSON.parse((Pathname.new('project.json').read))
+      commands = project['commands'].keys
+      commands.each do |command|
+        generate_dnx_task command
+      end
+    end
+    module_function :generate_dnx_tasks_for_project
 
     # :reek:NilCheck
     def run_command(command, sub_command, **options)
