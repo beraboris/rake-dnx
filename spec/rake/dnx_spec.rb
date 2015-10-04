@@ -31,6 +31,13 @@ shared_examples 'a command wrapper' do
   end
 end
 
+shared_examples 'a dnu command task generator' do
+  it 'should generate the dnu restore task'
+  it 'should generate the dnu build task'
+  it 'should generate the dnu pack task'
+  it 'should generate the dnu publish task'
+end
+
 describe Rake::Dnx do
   it 'should have a version number' do
     expect(Rake::Dnx::VERSION).not_to be nil
@@ -44,5 +51,30 @@ describe Rake::Dnx do
   describe '::dnu' do
     let(:command) { 'dnu' }
     it_should_behave_like 'a command wrapper'
+  end
+
+  describe '::dnx_discover' do
+    context 'with a global.json file' do
+      it_should_behave_like 'a dnu command task generator'
+
+      it 'should generate the dnu build task for every project'
+      it 'should generate the dnu pack task for every project'
+      it 'should generate the dnu publish task for every project'
+      it 'should generate the dnx run task for every project'
+      it 'should generate command tasks for every project'
+      it 'should generate aggregate command tasks'
+      it 'should not generate a dnx run task'
+    end
+
+    context 'with a project.json file' do
+      it_should_behave_like 'a dnu command task generator'
+
+      it 'should generate a dnx run task'
+      it 'should generate a task for each command'
+    end
+
+    context 'with no global.json or project.json file in the root' do
+      it 'should fail'
+    end
   end
 end
