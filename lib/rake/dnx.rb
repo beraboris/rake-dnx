@@ -2,6 +2,7 @@ require 'rake'
 require 'json'
 require 'pathname'
 require 'rake/dnx/version'
+require 'rake/dnx/project'
 require 'English'
 
 module Rake
@@ -66,8 +67,41 @@ module Rake
 
     def discover_gobal
       generate_dnu_task 'restore'
+
+      projects = projects_in_global
+      projects.each do |project|
+        %w(build pack publish).each do |command|
+          generate_dnu_task command, project: project.name
+        end
+
+        ['run', *project.commands].each do |command|
+          generate_dnx_task command, project: project.name
+        end
+      end
+
+      %w(build pack).each do |command|
+        dependencies = projects.map { |p| "#{p.name}:#{command}" }.to_a
+        Rake::Task.define_task command, dependencies
+      end
+
+      aggregate_commands(projects).each do |command, dependencies|
+        Rake::Task.define_task command, dependencies
+      end
     end
     module_function :discover_gobal
+
+    def aggregate_commands(projects)
+      commands = Hash.new { [] }
+
+      projects.each do |project|
+        project.commands.each do |command|
+          commands[command] += ["#{project.name}:#{command}"]
+        end
+      end
+
+      commands
+    end
+    module_function :aggregate_commands
 
     def discover_project
       %w(restore build pack publish).each do |command|
@@ -79,28 +113,39 @@ module Rake
     end
     module_function :discover_project
 
-    def generate_dnu_task(command)
-      Rake::Task.define_task command do
-        dnu command
+    def generate_dnu_task(command, project: nil)
+      task_name = project ? "#{project}:#{command}" : command
+      Rake::Task.define_task task_name do
+        dnu command, project: project
       end
     end
     module_function :generate_dnu_task
 
-    def generate_dnx_task(command)
-      Rake::Task.define_task command do
+    def generate_dnx_task(command, project: nil)
+      task_name = project ? "#{project}:#{command}" : command
+      Rake::Task.define_task task_name do
         dnx command
       end
     end
     module_function :generate_dnx_task
 
     def generate_dnx_tasks_for_project
-      project = JSON.parse((Pathname.new('project.json').read))
-      commands = project['commands'].keys
-      commands.each do |command|
+      project = Project.parse Pathname.new '.'
+      project.commands.each do |command|
         generate_dnx_task command
       end
     end
     module_function :generate_dnx_tasks_for_project
+
+    def projects_in_global
+      global_contents = Pathname.new('global.json').read
+      project_dirs = JSON.parse(global_contents)['projects'] || {}
+      project_dirs
+        .flat_map { |dir| Pathname.new(dir).children }
+        .select { |dir| Project.exist? dir }
+        .map { |dir| Project.parse dir }
+    end
+    module_function :projects_in_global
 
     # :reek:NilCheck
     def run_command(command, sub_command, **options)

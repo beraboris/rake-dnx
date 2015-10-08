@@ -56,12 +56,6 @@ shared_examples 'a dnu command task generator' do
 
     expect(Rake::Task).to have_task(:pack)
   end
-
-  it 'should generate the dnu publish task' do
-    Rake::Dnx.dnx_discover
-
-    expect(Rake::Task).to have_task(:publish)
-  end
 end
 
 describe Rake::Dnx do
@@ -91,13 +85,80 @@ describe Rake::Dnx do
 
       it_should_behave_like 'a dnu command task generator'
 
-      it 'should generate the dnu build task for every project'
-      it 'should generate the dnu pack task for every project'
-      it 'should generate the dnu publish task for every project'
-      it 'should generate the dnx run task for every project'
-      it 'should generate command tasks for every project'
-      it 'should generate aggregate command tasks'
-      it 'should not generate a dnx run task'
+      it 'should generate the dnu build task for every project' do
+        Rake::Dnx.dnx_discover
+
+        expect(Rake::Task).to have_task('Project.A:build')
+        expect(Rake::Task).to have_task('Project.A.Test:build')
+        expect(Rake::Task).to have_task('Project.B:build')
+        expect(Rake::Task).to have_task('Project.B.Test:build')
+      end
+
+      it 'should generate the dnu pack task for every project' do
+        Rake::Dnx.dnx_discover
+
+        expect(Rake::Task).to have_task('Project.A:pack')
+        expect(Rake::Task).to have_task('Project.A.Test:pack')
+        expect(Rake::Task).to have_task('Project.B:pack')
+        expect(Rake::Task).to have_task('Project.B.Test:pack')
+      end
+
+      it 'should generate the dnu publish task for every project' do
+        Rake::Dnx.dnx_discover
+
+        expect(Rake::Task).to have_task('Project.A:publish')
+        expect(Rake::Task).to have_task('Project.A.Test:publish')
+        expect(Rake::Task).to have_task('Project.B:publish')
+        expect(Rake::Task).to have_task('Project.B.Test:publish')
+      end
+
+      it 'should generate the dnx run task for every project' do
+        Rake::Dnx.dnx_discover
+
+        expect(Rake::Task).to have_task('Project.A:run')
+        expect(Rake::Task).to have_task('Project.A.Test:run')
+        expect(Rake::Task).to have_task('Project.B:run')
+        expect(Rake::Task).to have_task('Project.B.Test:run')
+      end
+
+      it 'should generate command tasks for every project' do
+        Rake::Dnx.dnx_discover
+
+        expect(Rake::Task).to have_task 'Project.A:a-command'
+        expect(Rake::Task).to have_task 'Project.A:common-command'
+        expect(Rake::Task).to have_task 'Project.B:b-command'
+        expect(Rake::Task).to have_task 'Project.B:common-command'
+      end
+
+      it 'should generate aggregate command tasks' do
+        Rake::Dnx.dnx_discover
+
+        expect(Rake::Task).to have_task :test
+        expect(Rake::Task).to have_task 'common-command'
+        expect(Rake::Task).to have_task 'a-command'
+        expect(Rake::Task).to have_task 'b-command'
+      end
+
+      it 'should not generate a dnx run task' do
+        Rake::Dnx.dnx_discover
+
+        expect(Rake::Task).not_to have_task(:run)
+      end
+
+      it 'should not generate tasks for non-projects' do
+        Rake::Dnx.dnx_discover
+
+        expect(Rake::Task).not_to have_task 'Not.A.Project:run'
+        expect(Rake::Task).not_to have_task 'Not.A.Project:build'
+        expect(Rake::Task).not_to have_task 'Not.A.Project:pack'
+        expect(Rake::Task).not_to have_task 'Not.A.Project:publish'
+      end
+
+      it 'should not have a publish task' do
+        Rake::Dnx.dnx_discover
+
+        expect(Rake::Task).not_to have_task :publish
+      end
     end
 
     context 'with a project.json file' do
@@ -119,6 +180,12 @@ describe Rake::Dnx do
         expect(Rake::Task).to have_task :fi
         expect(Rake::Task).to have_task :fo
         expect(Rake::Task).to have_task :fum
+      end
+
+      it 'should generate the dnu publish task' do
+        Rake::Dnx.dnx_discover
+
+        expect(Rake::Task).to have_task(:publish)
       end
     end
 

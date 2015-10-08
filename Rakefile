@@ -7,7 +7,7 @@ RSpec::Core::RakeTask.new(:spec)
 task default: [:spec, :lint]
 
 desc 'Run linters to ensure code quality'
-task lint: [:rubocop, :reek]
+task lint: [:rubocop]
 
 desc 'Run rubocop linter'
 task RuboCop::RakeTask.new :rubocop do |t|
