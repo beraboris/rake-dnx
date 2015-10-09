@@ -31,16 +31,16 @@ module Rake
         projects = projects_in_global
         projects.each do |project|
           %w(build pack publish).each do |command|
-            generate_dnu_task command, project: project.name
+            generate_dnu_task command, project: project
           end
 
           ['run', *project.commands].each do |command|
-            generate_dnx_task command, project: project.name
+            generate_dnx_task command, project: project
           end
         end
 
         %w(build pack).each do |command|
-          dependencies = projects.map { |p| "#{p.name}:#{command}" }.to_a
+          dependencies = projects.map { |p| command_task_name command, p }.to_a
           Rake::Task.define_task command, dependencies
         end
 
@@ -54,7 +54,7 @@ module Rake
 
         projects.each do |project|
           project.commands.each do |command|
-            commands[command] += ["#{project.name}:#{command}"]
+            commands[command] += [command_task_name(command, project)]
           end
         end
 
@@ -71,15 +71,13 @@ module Rake
       end
 
       def generate_dnu_task(command, project: nil)
-        task_name = project ? "#{project}:#{command}" : command
-        Rake::Task.define_task task_name do
+        Rake::Task.define_task command_task_name command, project do
           dnu command, project: project
         end
       end
 
       def generate_dnx_task(command, project: nil)
-        task_name = project ? "#{project}:#{command}" : command
-        Rake::Task.define_task task_name do
+        Rake::Task.define_task command_task_name command, project do
           dnx command
         end
       end
@@ -98,6 +96,14 @@ module Rake
           .flat_map { |dir| Pathname.new(dir).children }
           .select { |dir| Project.exist? dir }
           .map { |dir| Project.parse dir }
+      end
+
+      def command_task_name(command, project = nil)
+        if project
+          "#{project.name}:#{command}"
+        else
+          command
+        end
       end
     end
   end
