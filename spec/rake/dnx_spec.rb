@@ -9,56 +9,59 @@ end
 
 shared_examples 'a command wrapper' do
   it 'should call the command with the given subcommand' do
-    expect(Rake::Dnx).to receive(:system)
+    expect(self).to receive(:system)
       .with(command, 'some-subcommand')
       .and_return true
 
-    Rake::Dnx.public_send command, 'some-subcommand'
+    public_send command, 'some-subcommand'
   end
 
   it 'should fail if the command fails' do
-    allow(Rake::Dnx).to receive(:system).and_return false
+    allow(self).to receive(:system).and_return false
 
-    expect { Rake::Dnx.public_send(command, 'something') }
+    expect { public_send(command, 'something') }
       .to raise_error(Rake::Dnx::CommandError)
   end
 
   it 'should fail if the command is missing' do
-    allow(Rake::Dnx).to receive(:system).and_return nil
+    allow(self).to receive(:system).and_return nil
 
-    expect { Rake::Dnx.public_send(command, 'something') }
+    expect { public_send(command, 'something') }
       .to raise_error(Rake::Dnx::CommandNotFoundError)
   end
 
   it 'should pass the project argument' do
-    expect(Rake::Dnx).to receive(:system)
+    expect(self).to receive(:system)
       .with(command, '--project', 'My.Super.Project', 'thing').and_return true
 
-    Rake::Dnx.public_send command, 'thing', project: 'My.Super.Project'
+    public_send command, 'thing', project: 'My.Super.Project'
   end
 end
 
 shared_examples 'a dnu command task generator' do
   it 'should generate the dnu restore task' do
-    Rake::Dnx.dnx_discover
+    dnx_discover
 
     expect(Rake::Task).to have_task(:restore)
   end
 
   it 'should generate the dnu build task' do
-    Rake::Dnx.dnx_discover
+    dnx_discover
 
     expect(Rake::Task).to have_task(:build)
   end
 
   it 'should generate the dnu pack task' do
-    Rake::Dnx.dnx_discover
+    dnx_discover
 
     expect(Rake::Task).to have_task(:pack)
   end
 end
 
 describe Rake::Dnx do
+  include Rake::Dnx::Commands
+  include Rake::Dnx::Discovery
+
   it 'should have a version number' do
     expect(Rake::Dnx::VERSION).not_to be nil
   end
@@ -86,7 +89,7 @@ describe Rake::Dnx do
       it_should_behave_like 'a dnu command task generator'
 
       it 'should generate the dnu build task for every project' do
-        Rake::Dnx.dnx_discover
+        dnx_discover
 
         expect(Rake::Task).to have_task('Project.A:build')
         expect(Rake::Task).to have_task('Project.A.Test:build')
@@ -95,7 +98,7 @@ describe Rake::Dnx do
       end
 
       it 'should generate the dnu pack task for every project' do
-        Rake::Dnx.dnx_discover
+        dnx_discover
 
         expect(Rake::Task).to have_task('Project.A:pack')
         expect(Rake::Task).to have_task('Project.A.Test:pack')
@@ -104,7 +107,7 @@ describe Rake::Dnx do
       end
 
       it 'should generate the dnu publish task for every project' do
-        Rake::Dnx.dnx_discover
+        dnx_discover
 
         expect(Rake::Task).to have_task('Project.A:publish')
         expect(Rake::Task).to have_task('Project.A.Test:publish')
@@ -113,7 +116,7 @@ describe Rake::Dnx do
       end
 
       it 'should generate the dnx run task for every project' do
-        Rake::Dnx.dnx_discover
+        dnx_discover
 
         expect(Rake::Task).to have_task('Project.A:run')
         expect(Rake::Task).to have_task('Project.A.Test:run')
@@ -122,7 +125,7 @@ describe Rake::Dnx do
       end
 
       it 'should generate command tasks for every project' do
-        Rake::Dnx.dnx_discover
+        dnx_discover
 
         expect(Rake::Task).to have_task 'Project.A:a-command'
         expect(Rake::Task).to have_task 'Project.A:common-command'
@@ -131,7 +134,7 @@ describe Rake::Dnx do
       end
 
       it 'should generate aggregate command tasks' do
-        Rake::Dnx.dnx_discover
+        dnx_discover
 
         expect(Rake::Task).to have_task :test
         expect(Rake::Task).to have_task 'common-command'
@@ -140,13 +143,13 @@ describe Rake::Dnx do
       end
 
       it 'should not generate a dnx run task' do
-        Rake::Dnx.dnx_discover
+        dnx_discover
 
         expect(Rake::Task).not_to have_task(:run)
       end
 
       it 'should not generate tasks for non-projects' do
-        Rake::Dnx.dnx_discover
+        dnx_discover
 
         expect(Rake::Task).not_to have_task 'Not.A.Project:run'
         expect(Rake::Task).not_to have_task 'Not.A.Project:build'
@@ -155,7 +158,7 @@ describe Rake::Dnx do
       end
 
       it 'should not have a publish task' do
-        Rake::Dnx.dnx_discover
+        dnx_discover
 
         expect(Rake::Task).not_to have_task :publish
       end
@@ -169,13 +172,13 @@ describe Rake::Dnx do
       it_should_behave_like 'a dnu command task generator'
 
       it 'should generate a dnx run task' do
-        Rake::Dnx.dnx_discover
+        dnx_discover
 
         expect(Rake::Task).to have_task :run
       end
 
       it 'should generate a task for each command' do
-        Rake::Dnx.dnx_discover
+        dnx_discover
 
         expect(Rake::Task).to have_task :fi
         expect(Rake::Task).to have_task :fo
@@ -183,7 +186,7 @@ describe Rake::Dnx do
       end
 
       it 'should generate the dnu publish task' do
-        Rake::Dnx.dnx_discover
+        dnx_discover
 
         expect(Rake::Task).to have_task(:publish)
       end
@@ -195,7 +198,7 @@ describe Rake::Dnx do
       end
 
       it 'should fail' do
-        expect { Rake::Dnx.dnx_discover }
+        expect { dnx_discover }
           .to raise_error(Rake::Dnx::DiscoveryError)
       end
     end
