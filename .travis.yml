@@ -4,11 +4,13 @@ rvm:
   - 2.1
   - 2.0
 
-mono: latest
-
 before_install:
   - gem install bundler -v 1.10.5
 
-  # install dnvm and dnx
+  # install mono & friends
+  - apt-get update
+  - apt-get install -y mono-complete mono-vbnc fsharp nuget referenceassemblies-pcl
+
+  # install dnvm & dnx
   - curl -sSL https://raw.githubusercontent.com/aspnet/Home/dev/dnvminstall.sh | DNX_BRANCH=dev sh && source ~/.dnx/dnvm/dnvm.sh
   - dnvm upgrade -y
