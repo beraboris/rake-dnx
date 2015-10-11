@@ -10,8 +10,8 @@ module Rake
         @sub_command = sub_command
         @params = params
 
-        super "Failed to run '#{command} #{sub_command}' with '\
-          'params=#{params} (exit_code=#{exit_code})"
+        super "Failed to run '#{command} #{sub_command}' with " \
+          "params=#{params} (exit_code=#{exit_code})"
       end
     end
 
