@@ -1,7 +1,7 @@
 module Rake
   module Dnx
     # Represents a failure when running the `dnx` command
-    class CommandError < RuntimeError
+    class CommandError < StandardError
       attr_reader :exit_code, :command, :sub_command, :params
 
       def initialize(command, exit_code, sub_command, params = {})
@@ -16,7 +16,7 @@ module Rake
     end
 
     # Represents that the dnx command doesn't exist
-    class CommandNotFoundError < RuntimeError
+    class CommandNotFoundError < StandardError
       attr_reader :command
 
       def initialize(command)
@@ -25,6 +25,6 @@ module Rake
     end
 
     # Represents a failure to discover dnx projects
-    class DiscoveryError < RuntimeError; end
+    class DiscoveryError < StandardError; end
   end
 end
