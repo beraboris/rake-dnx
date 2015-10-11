@@ -11,7 +11,7 @@ before_install:
 
   # install mono & friends
   - sudo apt-get update
-  - sudo apt-get install -y mono-complete mono-vbnc fsharp nuget referenceassemblies-pcl
+  - sudo apt-get install -y mono-complete mono-vbnc
 
   # install dnvm & dnx
   - curl -sSL https://raw.githubusercontent.com/aspnet/Home/dev/dnvminstall.sh | DNX_BRANCH=dev sh && source ~/.dnx/dnvm/dnvm.sh
