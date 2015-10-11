@@ -53,10 +53,10 @@ module Rake
       end
 
       def define_aggregate_task(command, sub_command, projects)
-        dependencies = projects.map { |p| command_task_name command, p }.to_a
+        dependencies = projects.map { |p| command_task_name sub_command, p }
 
         describe_aggregate_task command, sub_command
-        Rake::Task.define_task sub_command, dependencies
+        Rake::Task.define_task sub_command => dependencies.to_a
       end
 
       def aggregate_commands(projects)
@@ -119,7 +119,7 @@ module Rake
       def describe_task(command, sub_command, project = nil)
         if project
           Rake.application.last_description = \
-            "Run #{command} #{sub_command} for #{project}"
+            "Run #{command} #{sub_command} for #{project.name}"
         else
           Rake.application.last_description = \
             "Run #{command} #{sub_command}"
