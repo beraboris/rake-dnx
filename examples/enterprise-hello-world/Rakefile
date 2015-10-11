@@ -1,0 +1,9 @@
+$LOAD_PATH.unshift File.expand_path('../../../lib', __FILE__)
+require 'rake/dnx'
+
+dnx_discover
+
+desc 'Run the hello world app'
+task run: 'Acme.HelloWorld.App:run'
+
+task default: :run
