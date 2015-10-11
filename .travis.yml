@@ -4,3 +4,7 @@ rvm:
   - 2.1
   - 2.0
 before_install: gem install bundler -v 1.10.5
+
+install:
+  - curl -sSL https://raw.githubusercontent.com/aspnet/Home/dev/dnvminstall.sh | DNX_BRANCH=dev sh && source ~/.dnx/dnvm/dnvm.sh
+  - dnvm upgrade -y
