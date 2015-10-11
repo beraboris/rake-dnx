@@ -19,7 +19,6 @@ def rake(*args, quiet: false)
 
   # rubocop:disable Style/GuardClause
   unless status.success?
-    puts 'RAKE FAILED!!!!'
     fail StandardError,
          "Failed to run 'rake #{args.join ' '}', error_code=#{status}"
   end
