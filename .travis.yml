@@ -10,8 +10,9 @@ before_install:
   - gem install bundler -v 1.10.5
 
   # install mono & friends
+  - echo "deb http://download.mono-project.com/repo/debian wheezy-libtiff-compat main" | sudo tee -a /etc/apt/sources.list.d/mono-xamarin.list
   - sudo apt-get update
-  - sudo apt-get install -y mono-complete mono-vbnc
+  - sudo apt-get install -y mono-complete referenceassemblies-pcl
 
   # install dnvm & dnx
   - curl -sSL https://raw.githubusercontent.com/aspnet/Home/dev/dnvminstall.sh | DNX_BRANCH=dev sh && source ~/.dnx/dnvm/dnvm.sh
