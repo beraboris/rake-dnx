@@ -29,15 +29,7 @@ module Rake
         generate_dnu_task 'restore'
 
         projects = projects_in_global
-        projects.each do |project|
-          %w(build pack publish).each do |command|
-            generate_dnu_task command, project: project
-          end
-
-          ['run', *project.commands].each do |command|
-            generate_dnx_task command, project: project
-          end
-        end
+        generate_tasks_for_projects projects
 
         %w(build pack).each do |command|
           dependencies = projects.map { |p| command_task_name command, p }.to_a
@@ -46,6 +38,18 @@ module Rake
 
         aggregate_commands(projects).each do |command, dependencies|
           Rake::Task.define_task command, dependencies
+        end
+      end
+
+      def generate_tasks_for_projects(projects)
+        projects.each do |project|
+          %w(build pack publish).each do |command|
+            generate_dnu_task command, project: project
+          end
+
+          ['run', *project.commands].each do |command|
+            generate_dnx_task command, project: project
+          end
         end
       end
 
