@@ -28,5 +28,9 @@ describe Rake::Dnx::Project do
     it 'should parse the commands as an array' do
       expect(Rake::Dnx::Project.parse(dir).commands).to eq %w(fi fo fum)
     end
+
+    it 'should set the path to the given one' do
+      expect(Rake::Dnx::Project.parse(dir).path).to eq dir
+    end
   end
 end
