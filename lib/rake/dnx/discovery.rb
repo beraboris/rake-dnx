@@ -26,31 +26,37 @@ module Rake
       private
 
       def discover_gobal
-        generate_dnu_task 'restore'
+        define_command_task :dnu, :restore
 
         projects = projects_in_global
         generate_tasks_for_projects projects
 
         %w(build pack).each do |command|
-          dependencies = projects.map { |p| command_task_name command, p }.to_a
-          Rake::Task.define_task command, dependencies
+          define_aggregate_task 'dnu', command, projects
         end
 
-        aggregate_commands(projects).each do |command, dependencies|
-          Rake::Task.define_task command, dependencies
+        aggregate_commands(projects).each do |command, command_projects|
+          define_aggregate_task 'dnx', command, command_projects
         end
       end
 
       def generate_tasks_for_projects(projects)
         projects.each do |project|
           %w(build pack publish).each do |command|
-            generate_dnu_task command, project: project
+            define_command_task :dnu, command, project: project
           end
 
           ['run', *project.commands].each do |command|
-            generate_dnx_task command, project: project
+            define_command_task :dnx, command, project: project
           end
         end
+      end
+
+      def define_aggregate_task(command, sub_command, projects)
+        dependencies = projects.map { |p| command_task_name command, p }.to_a
+
+        describe_aggregate_task command, sub_command
+        Rake::Task.define_task sub_command, dependencies
       end
 
       def aggregate_commands(projects)
@@ -58,7 +64,7 @@ module Rake
 
         projects.each do |project|
           project.commands.each do |command|
-            commands[command] += [command_task_name(command, project)]
+            commands[command] += [project]
           end
         end
 
@@ -67,29 +73,24 @@ module Rake
 
       def discover_project
         %w(restore build pack publish).each do |command|
-          generate_dnu_task command
+          define_command_task :dnu, command
         end
 
-        generate_dnx_task :run
-        generate_dnx_tasks_for_project
+        define_command_task :dnx, :run
+        define_tasks_for_project_commands
       end
 
-      def generate_dnu_task(command, project: nil)
-        Rake::Task.define_task command_task_name command, project do
-          dnu command, project: project
-        end
-      end
-
-      def generate_dnx_task(command, project: nil)
-        Rake::Task.define_task command_task_name command, project do
-          dnx command
+      def define_command_task(command, sub_command, project: nil)
+        describe_task command, sub_command, project
+        Rake::Task.define_task command_task_name sub_command, project do
+          public_send command, sub_command, project: project
         end
       end
 
-      def generate_dnx_tasks_for_project
+      def define_tasks_for_project_commands
         project = Project.parse Pathname.new '.'
         project.commands.each do |command|
-          generate_dnx_task command
+          define_command_task :dnx, command
         end
       end
 
@@ -107,6 +108,21 @@ module Rake
           "#{project.name}:#{command}"
         else
           command
+        end
+      end
+
+      def describe_aggregate_task(command, sub_command)
+        Rake.application.last_description = \
+          "Run #{command} #{sub_command} for all projects"
+      end
+
+      def describe_task(command, sub_command, project = nil)
+        if project
+          Rake.application.last_description = \
+            "Run #{command} #{sub_command} for #{project}"
+        else
+          Rake.application.last_description = \
+            "Run #{command} #{sub_command}"
         end
       end
     end
