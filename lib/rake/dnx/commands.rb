@@ -5,22 +5,29 @@ module Rake
     # Command wrappers for `dnx` and `dnu`
     module Commands
       # Calls the `dnx` command
-      def dnx(command, **options)
-        run_command 'dnx', command.to_s, **options
+      def dnx(command, project: nil)
+        if project
+          run_command 'dnx', command.to_s, '-p', project.name
+        else
+          run_command 'dnx', command.to_s
+        end
       end
 
       # Calls the `dnu` command
-      def dnu(command, **options)
-        run_command 'dnu', command.to_s, **options
+      def dnu(command, project: nil)
+        if project
+          Dir.chdir project.path do
+            run_command 'dnu', command.to_s
+          end
+        else
+          run_command 'dnu', command.to_s
+        end
       end
 
       private
 
-      def run_command(command, sub_command, **options)
-        shell_options = options
-                        .reject { |_, value| value.nil? }
-                        .flat_map { |name, value| ["--#{name}", value] }
-        res = system command, *shell_options, sub_command
+      def run_command(command, sub_command, *args)
+        res = system command, *args, sub_command
 
         case res
         when false

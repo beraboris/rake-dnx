@@ -20,13 +20,6 @@ shared_examples 'a command wrapper' do
     expect { public_send(command, 'something') }
       .to raise_error(Rake::Dnx::CommandNotFoundError)
   end
-
-  it 'should pass the project argument' do
-    expect(self).to receive(:system)
-      .with(command, '--project', 'My.Super.Project', 'thing').and_return true
-
-    public_send command, 'thing', project: 'My.Super.Project'
-  end
 end
 
 describe Rake::Dnx::Commands do
@@ -35,10 +28,30 @@ describe Rake::Dnx::Commands do
   describe '#dnx' do
     let(:command) { 'dnx' }
     it_should_behave_like 'a command wrapper'
+
+    it 'should pass the project argument' do
+      expect(self).to receive(:system)
+        .with(command, '-p', 'My.Super.Project', 'thing').and_return true
+      project = Rake::Dnx::Project.new 'My.Super.Project',
+                                       [],
+                                       Pathname.new('src/My.Super.Project')
+
+      public_send command, 'thing', project: project
+    end
   end
 
   describe '#dnu' do
     let(:command) { 'dnu' }
     it_should_behave_like 'a command wrapper'
+
+    it 'should change directory with the project option' do
+      dir = Pathname.new(__FILE__) + '../../../fixtures/single-project'
+      expect(self).to receive(:system) do
+        expect(Dir.pwd).to end_with dir.realpath.to_s
+      end
+      project = Rake::Dnx::Project.parse dir
+
+      dnu 'thing', project: project
+    end
   end
 end
