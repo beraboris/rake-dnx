@@ -3,6 +3,9 @@ rvm:
   - 2.2
   - 2.1
   - 2.0
+
+mono: latest
+
 before_install:
   - gem install bundler -v 1.10.5
 
