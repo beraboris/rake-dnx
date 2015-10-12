@@ -23,32 +23,59 @@ describe 'enterprise-hello-world example project' do
   end
 
   describe 'rake build' do
-    def dll_for_project(project)
-      root + 'src' + project + 'bin/Debug/dnx451' + "#{project}.dll"
+    def dll(project, dir = 'src')
+      root + dir + project + 'bin/Debug/dnx451' + "#{project}.dll"
     end
 
     it 'should build Acme.HelloWorld.App' do
       rake 'restore', 'build', quiet: true
 
-      expect(dll_for_project 'Acme.HelloWorld.App').to exist
+      expect(dll 'Acme.HelloWorld.App').to exist
+    end
+
+    it 'should build Acme.HelloWorld.Data' do
+      rake 'restore', 'build', quiet: true
+
+      expect(dll 'Acme.HelloWorld.Data').to exist
+    end
+
+    it 'should build Acme.HelloWorld.Data.Test' do
+      rake 'restore', 'build', quiet: true
+
+      expect(dll 'Acme.HelloWorld.Data.Test', 'test').to exist
     end
   end
 
   describe 'rake pack' do
-    def nupkg_for_project(project, version)
-      root + 'src' + project + 'bin/Debug' + "#{project}.#{version}.nupkg"
+    def nupkg(project, version, dir = 'src')
+      root + dir + project + 'bin/Debug' + "#{project}.#{version}.nupkg"
     end
 
-    def symbols_nupkg_for_project(project, version)
+    def symbols_nupkg(project, version, dir = 'src')
       package = "#{project}.#{version}.symbols.nupkg"
-      root + 'src' + project + 'bin/Debug' + package
+      root + dir + project + 'bin/Debug' + package
     end
 
     it 'should build the Acme.HelloWorld.App packages' do
       rake 'restore', 'pack', quiet: true
 
-      expect(nupkg_for_project 'Acme.HelloWorld.App', '1.0.0').to exist
-      expect(symbols_nupkg_for_project 'Acme.HelloWorld.App', '1.0.0').to exist
+      expect(nupkg 'Acme.HelloWorld.App', '1.0.0').to exist
+      expect(symbols_nupkg 'Acme.HelloWorld.App', '1.0.0').to exist
+    end
+
+    it 'should build the Acme.HelloWorld.Data packages' do
+      rake 'restore', 'pack', quiet: true
+
+      expect(nupkg 'Acme.HelloWorld.Data', '1.0.0').to exist
+      expect(symbols_nupkg 'Acme.HelloWorld.Data', '1.0.0').to exist
+    end
+
+    it 'should build the Acme.HelloWorld.Data.Test packages' do
+      rake 'restore', 'pack', quiet: true
+
+      expect(nupkg 'Acme.HelloWorld.Data.Test', '1.0.0', 'test').to exist
+      expect(symbols_nupkg 'Acme.HelloWorld.Data.Test',
+                           '1.0.0', 'test').to exist
     end
   end
 end
