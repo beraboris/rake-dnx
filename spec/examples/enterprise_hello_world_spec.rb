@@ -28,7 +28,7 @@ describe 'enterprise-hello-world example project' do
     end
 
     it 'should build Acme.HelloWorld.App' do
-      rake 'build', quiet: true
+      rake 'restore', 'build', quiet: true
 
       expect(dll_for_project 'Acme.HelloWorld.App').to exist
     end
@@ -45,7 +45,7 @@ describe 'enterprise-hello-world example project' do
     end
 
     it 'should build the Acme.HelloWorld.App packages' do
-      rake 'pack', quiet: true
+      rake 'restore', 'pack', quiet: true
 
       expect(nupkg_for_project 'Acme.HelloWorld.App', '1.0.0').to exist
       expect(symbols_nupkg_for_project 'Acme.HelloWorld.App', '1.0.0').to exist
