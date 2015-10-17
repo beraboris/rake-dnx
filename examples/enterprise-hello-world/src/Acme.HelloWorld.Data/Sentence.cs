@@ -8,9 +8,12 @@ namespace Acme.HelloWorld.Data {
             _words = words;
         }
 
+        protected virtual string Terminator => ".";
+
         public override string ToString() {
             return string.Join(" ",
-                _words.Select((w, i) => i == 0 ? w.Capitalize() : w )) + ".";
+                _words.Select((w, i) => i == 0 ? w.Capitalize() : w ))
+                + Terminator;
         }
 
         public override bool Equals(object other) {

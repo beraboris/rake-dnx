@@ -1,4 +1,7 @@
 {
   "version": "1.0.0-*",
-  "description": "A fully fledged hello world application built with the greatest enterprise standards."
+  "description": "A fully fledged hello world application built with the greatest enterprise standards.",
+  "dependencies": {
+    "Acme.HelloWorld.Data": "1.0.0-*"
+  }
 }
