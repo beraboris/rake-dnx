@@ -36,6 +36,13 @@ describe 'enterprise-hello-world example project' do
     end
   end
 
+  describe 'rake test' do
+    it 'should run all tests' do
+      expect { rake 'test' }.to \
+        output(/Finished:\s*Acme\.HelloWorld\.Data\.Test/).to_stdout
+    end
+  end
+
   describe 'rake pack' do
     def nupkg(project, version, dir = 'src')
       root + dir + project + 'bin/Debug' + "#{project}.#{version}.nupkg"

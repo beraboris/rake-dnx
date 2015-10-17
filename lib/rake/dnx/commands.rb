@@ -7,7 +7,9 @@ module Rake
       # Calls the `dnx` command
       def dnx(command, project: nil)
         if project
-          run_command 'dnx', command.to_s, '-p', project.name
+          Dir.chdir project.path do
+            run_command 'dnx', command.to_s
+          end
         else
           run_command 'dnx', command.to_s
         end

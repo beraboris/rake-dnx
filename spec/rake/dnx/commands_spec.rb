@@ -30,6 +30,8 @@ describe Rake::Dnx::Commands do
     it_should_behave_like 'a command wrapper'
 
     it 'should pass the project argument' do
+      skip 'Temporary working around bug (aspnet/Home#981)'
+
       expect(self).to receive(:system)
         .with(command, '-p', 'My.Super.Project', 'thing').and_return true
       project = Rake::Dnx::Project.new 'My.Super.Project',
@@ -37,6 +39,16 @@ describe Rake::Dnx::Commands do
                                        Pathname.new('src/My.Super.Project')
 
       public_send command, 'thing', project: project
+    end
+
+    it 'should cd to the project dir' do
+      dir = Pathname.new(__FILE__) + '../../../fixtures/single-project'
+      expect(self).to receive(:system) do
+        expect(Dir.pwd).to end_with dir.realpath.to_s
+      end
+      project = Rake::Dnx::Project.parse dir
+
+      dnx 'thing', project: project
     end
   end
 
