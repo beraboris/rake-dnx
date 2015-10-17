@@ -1,7 +1,7 @@
 using Xunit;
 using System;
 
-namespace Acme.HelloWord.Data {
+namespace Acme.HelloWorld.Data {
     public class WordTest {
         [Theory]
         [InlineData("foo bar")]
@@ -31,6 +31,11 @@ namespace Acme.HelloWord.Data {
         public void GetHashCodeShouldMatchForSameObject() {
             Assert.Equal(new Word("Thing").GetHashCode(),
                 new Word("Thing").GetHashCode());
+        }
+
+        [Fact]
+        public void CapitalizeShouldReturnWordWithFirstLetterCapital() {
+            Assert.Equal(new Word("Foobar"), new Word("foobar").Capitalize());
         }
     }
 }

@@ -1,7 +1,9 @@
 using System;
+using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 
-namespace Acme.HelloWord.Data {
+namespace Acme.HelloWorld.Data {
     public class Word {
         public string Value { get; }
         public Language Language { get; }
@@ -34,6 +36,13 @@ namespace Acme.HelloWord.Data {
             hash = hash * 23 + Value.GetHashCode();
             hash = hash * 23 + Language.GetHashCode();
             return hash;
+        }
+
+        public Word Capitalize() {
+            return new Word(new StringBuilder()
+                .Append(char.ToUpper(Value.First()))
+                .Append(Value.Skip(1).ToArray())
+                .ToString());
         }
     }
 }

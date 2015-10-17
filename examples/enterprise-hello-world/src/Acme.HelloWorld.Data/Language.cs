@@ -1,4 +1,4 @@
-namespace Acme.HelloWord.Data {
+namespace Acme.HelloWorld.Data {
     public enum Language {
         English, French
     }
